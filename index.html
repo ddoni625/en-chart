@@ -47,25 +47,30 @@
             margin-bottom: 20px;
             word-break: keep-all;
         }
-
         table {
             border-collapse: collapse;
             margin: 0 auto;
             width: 100%;
             table-layout: fixed;
+            /* 표 전체 바깥쪽에 1px 테두리 적용 */
+            border: 1px solid #000000;
         }
 
         th, td {
-            border: 1px solid #000000;
-            width: 80px;
-            height: 60px;
-            text-align: center;
-            vertical-align: middle;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            position: relative;
-        }
+    /* 각 칸은 오른쪽과 아래쪽에만 1px 테두리를 줘서 선이 겹치지 않게 방지! */
+    border-right: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+    border-top: none;
+    border-left: none;
+    width: 80px;
+    height: 60px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+}
 
         th {
             background-color: #e6e6e6; 

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>엔하이픈(ENHYPEN) 픈페스 취향표</title>
+    <!-- html2canvas 라이브러리 (이미지 저장 기능용) -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        #capture-area {
+            background-color: #ffffff;
+            /* 박스 자체를 위에서 120px 띄우기 (외부 여백) */
+            margin-top: 120px;
+            /* 박스 내부 여백은 상하좌우 균일하게 40px */
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            text-align: center;
+            max-width: 900px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #1a1a1a;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+            word-break: keep-all;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin: 0 auto;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        th, td {
+            border: 1px solid #4a4a4a;
+            width: 80px;
+            height: 60px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+        }
+
+        th {
+            background-color: #e6e6e6; 
+            color: #1a1a1a;
+        }
+
+        .empty-cell {
+            background-color: #f2f2f2;
+            cursor: default;
+        }
+
+        td {
+            background-color: #ffffff;
+            color: #1a1a1a;
+        }
+
+        /* 마우스 오버 시 #E2E2E2 색상을 Multiply 모드로 겹치기 */
+        th:hover:not(.empty-cell)::after, td:hover::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #E2E2E2;
+            mix-blend-mode: multiply;
+            pointer-events: none;
+        }
+
+        .legend {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .color-circle {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+        }
+
+        .btn-container {
+            margin-top: 30px;
+            margin-bottom: 50px; /* 하단 여백 추가 */
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        button {
+            background-color: #1a1a1a;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-family: inherit;
+        }
+
+        button:hover {
+            background-color: #333;
+        }
+
+        #reset-btn {
+            background-color: #888888;
+        }
+        
+        #reset-btn:hover {
+            background-color: #666666;
+        }
+
+        #option-modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 10px;
+            flex-direction: column;
+            gap: 5px;
+            width: 150px;
+        }
+
+        .option-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: #000000;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .option-btn:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 99;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="capture-area">
+        <h1>ENHYPEN 픈페스 취향표</h1>
+        <div class="subtitle">멤버 이름 선택 시 전체 선택이 가능합니다.</div>
+
+        <table id="chart-table">
+            <thead>
+                <tr>
+                    <th class="empty-cell"></th>
+                    <th data-type="col" data-index="0">양정원</th>
+                    <th data-type="col" data-index="1">박종성</th>
+                    <th data-type="col" data-index="2">제이크</th>
+                    <th data-type="col" data-index="3">박성훈</th>
+                    <th data-type="col" data-index="4">김선우</th>
+                    <th data-type="col" data-index="5">니키</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <div class="legend">
+            <div class="legend-item"><div class="color-circle" style="background-color: #ff4d4d; border-color: #ff4d4d;"></div> OTP</div>
+            <div class="legend-item"><div class="color-circle" style="background-color: #ffb3e6; border-color: #ffb3e6;"></div> 좋음</div>
+            <div class="legend-item"><div class="color-circle" style="background-color: #ffe680; border-color: #ffe680;"></div> 관심있음</div>
+            <div class="legend-item"><div class="color-circle" style="background-color: #ffffff;"></div> 캐해 따라 다름</div>
+            <div class="legend-item"><div class="color-circle" style="background-color: #85e085; border-color: #85e085;"></div> 관심없음</div>
+            <div class="legend-item"><div class="color-circle" style="background-color: #66b3ff; border-color: #66b3ff;"></div> 안봄</div>
+            <div class="legend-item"><div class="color-circle" style="background-color: #2b2b2b; border-color: #2b2b2b;"></div> 지뢰</div>
+        </div>
+    </div>
+
+    <div class="btn-container">
+        <button id="reset-btn">전부 초기화</button>
+        <button id="save-btn">이미지로 저장</button>
+    </div>
+
+    <div class="modal-overlay" id="modal-overlay"></div>
+
+    <div id="option-modal">
+        <button class="option-btn" data-color="#ff4d4d" data-text="#000000"><div class="color-circle" style="background: #ff4d4d; border:none;"></div> OTP</button>
+        <button class="option-btn" data-color="#ffb3e6" data-text="#000000"><div class="color-circle" style="background: #ffb3e6; border:none;"></div> 좋음</button>
+        <button class="option-btn" data-color="#ffe680" data-text="#000000"><div class="color-circle" style="background: #ffe680; border:none;"></div> 관심있음</button>
+        <button class="option-btn" data-color="#ffffff" data-text="#000000"><div class="color-circle" style="background: #ffffff;"></div> 캐해 따라 다름</button>
+        <button class="option-btn" data-color="#85e085" data-text="#000000"><div class="color-circle" style="background: #85e085; border:none;"></div> 관심없음</button>
+        <button class="option-btn" data-color="#66b3ff" data-text="#000000"><div class="color-circle" style="background: #66b3ff; border:none;"></div> 안봄</button>
+        <button class="option-btn" data-color="#2b2b2b" data-text="#000000"><div class="color-circle" style="background: #2b2b2b; border:none;"></div> 지뢰</button>
+    </div>
+
+    <script>
+        const members = ['양정원', '박종성', '제이크', '박성훈', '김선우', '니키'];
+        const matrix = [
+            ['양양', '젱양', '젴양', '성양', '썬양', '닠양'],
+            ['양젱', '젱젱', '젴젱', '성젱', '선젱', '닠젱'],
+            ['양젴', '젱젴', '젴젴', '성젴', '선젴', '닠젴'],
+            ['양훈', '젱성', '젴성', '훈훈', '선훈', '닠성'],
+            ['양썬', '젱선', '젴선', '훈선', '썬썬', '닠선'],
+            ['양닠', '젱닠', '젴닠', '성닠', '선닠', '닠닠']
+        ];
+
+        const tbody = document.querySelector('#chart-table tbody');
+        
+        matrix.forEach((row, rowIndex) => {
+            const tr = document.createElement('tr');
+            
+            const th = document.createElement('th');
+            th.textContent = members[rowIndex];
+            th.dataset.type = 'row';
+            th.dataset.index = rowIndex;
+            tr.appendChild(th);
+
+            row.forEach((cellText, colIndex) => {
+                const td = document.createElement('td');
+                td.textContent = cellText;
+                td.dataset.type = 'cell';
+                td.dataset.row = rowIndex;
+                td.dataset.col = colIndex;
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+
+        const modal = document.getElementById('option-modal');
+        const overlay = document.getElementById('modal-overlay');
+        let currentTarget = null;
+
+        document.querySelectorAll('th[data-type], td[data-type="cell"]').forEach(el => {
+            el.addEventListener('click', (e) => {
+                currentTarget = {
+                    type: el.dataset.type,
+                    row: el.dataset.row,
+                    col: el.dataset.col,
+                    index: el.dataset.index
+                };
+
+                let x = e.clientX;
+                let y = e.clientY;
+                
+                if (x + 150 > window.innerWidth) x = window.innerWidth - 170;
+                if (y + 250 > window.innerHeight) y = window.innerHeight - 270;
+
+                modal.style.left = x + 'px';
+                modal.style.top = y + 'px';
+                modal.style.display = 'flex';
+                overlay.style.display = 'block';
+            });
+        });
+
+        overlay.addEventListener('click', () => {
+            modal.style.display = 'none';
+            overlay.style.display = 'none';
+        });
+
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const bgColor = btn.dataset.color;
+                const textColor = btn.dataset.text;
+
+                if (currentTarget.type === 'cell') {
+                    const cell = document.querySelector(`td[data-row="${currentTarget.row}"][data-col="${currentTarget.col}"]`);
+                    applyColor(cell, bgColor, textColor);
+                } else if (currentTarget.type === 'row') {
+                    const cells = document.querySelectorAll(`td[data-row="${currentTarget.index}"]`);
+                    cells.forEach(cell => applyColor(cell, bgColor, textColor));
+                } else if (currentTarget.type === 'col') {
+                    const cells = document.querySelectorAll(`td[data-col="${currentTarget.index}"]`);
+                    cells.forEach(cell => applyColor(cell, bgColor, textColor));
+                }
+
+                modal.style.display = 'none';
+                overlay.style.display = 'none';
+            });
+        });
+
+        function applyColor(element, bgColor, textColor) {
+            element.style.backgroundColor = bgColor;
+            element.style.color = textColor;
+        }
+
+        // 초기화 버튼 동작
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            document.querySelectorAll('td[data-type="cell"]').forEach(cell => {
+                cell.style.backgroundColor = '#ffffff';
+                cell.style.color = '#1a1a1a';
+            });
+        });
+
+        document.getElementById('save-btn').addEventListener('click', () => {
+            const captureArea = document.getElementById('capture-area');
+            html2canvas(captureArea, {
+                scale: 2, 
+                backgroundColor: "#ffffff"
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = '엔하이픈_취향표.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        });
+
+    </script>
+</body>
+</html>

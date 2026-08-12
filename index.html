@@ -49,21 +49,17 @@
             word-break: keep-all;
         }
 
-        /* 이미지 저장 시 선이 두꺼워지는 현상을 완벽 해결하는 방식 */
         table {
-            /* border-collapse: collapse; 대신 separate를 사용해 선 중복을 완전히 방지 */
             border-collapse: separate; 
             border-spacing: 0;
             margin: 0 auto;
             width: 100%;
             table-layout: fixed;
-            /* 표 전체 외곽의 위쪽과 왼쪽 테두리만 칠함 */
             border-top: 1px solid #000000;
             border-left: 1px solid #000000;
         }
 
         th, td {
-            /* 각 칸은 오른쪽과 아래쪽 테두리만 칠함 -> 선이 1px로 얇고 깔끔하게 딱 맞물림 */
             border-right: 1px solid #000000;
             border-bottom: 1px solid #000000;
             border-top: none;
@@ -94,7 +90,6 @@
             color: #1a1a1a;
         }
 
-        /* 마우스 오버 시 #E2E2E2 색상을 Multiply 모드로 겹치기 */
         th:hover:not(.empty-cell)::after, td:hover::after {
             content: "";
             position: absolute;
@@ -208,25 +203,72 @@
             z-index: 99;
         }
 
-        /* 📱 모바일 반응형 디자인 설정 (화면이 768px 이하일 때 발동) */
+        /* 결과 이미지 팝업(모달) 스타일 */
+        #result-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        #result-modal p {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            word-break: keep-all;
+            line-height: 1.5;
+        }
+
+        #result-image {
+            max-width: 100%;
+            max-height: 60vh;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            background: #fff;
+        }
+
+        .result-btns {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .result-btns button {
+            flex: 1;
+        }
+
+        #close-result-btn {
+            background-color: #555;
+        }
+
         @media (max-width: 768px) {
             body {
-                padding: 10px; /* 양옆 여백 줄임 */
+                padding: 10px; 
             }
             #capture-area {
-                margin-top: 50px; /* 모바일에서는 상단 여백을 조금 줄여 답답함 해소 */
-                padding: 25px 10px; /* 내부 여백 축소 */
+                margin-top: 50px; 
+                padding: 25px 10px; 
             }
             h1 {
-                font-size: 22px; /* 제목 크기 축소 */
+                font-size: 22px; 
             }
             .subtitle {
                 font-size: 12px;
                 margin-bottom: 15px;
             }
             th, td {
-                height: 45px; /* 셀 높이 축소 */
-                font-size: 11px; /* 글씨 크기 축소 */
+                height: 45px; 
+                font-size: 11px; 
                 letter-spacing: -0.5px;
             }
             .legend {
@@ -239,7 +281,7 @@
             }
             .btn-container {
                 width: 100%;
-                flex-direction: column; /* 버튼을 세로로 배치하여 터치하기 쉽게 변경 */
+                flex-direction: column; 
             }
             button {
                 width: 100%;
@@ -298,6 +340,16 @@
         <button class="option-btn" data-color="#2b2b2b" data-text="#000000"><div class="color-circle" style="background: #2b2b2b; border:none;"></div> 지뢰</button>
     </div>
 
+    <!-- 이미지 저장 결과 모달창 -->
+    <div id="result-modal">
+        <p>📱 모바일: 이미지를 꾹 눌러서 <b>'사진 앱에 저장'</b>을 선택하세요!<br>💻 PC: <b>'PC 저장'</b> 버튼을 누르거나 우클릭 저장하세요.</p>
+        <img id="result-image" src="" alt="완성된 취향표">
+        <div class="result-btns">
+            <button id="download-pc-btn">PC 저장</button>
+            <button id="close-result-btn">닫기</button>
+        </div>
+    </div>
+
     <script>
         const members = ['양정원', '박종성', '제이크', '박성훈', '김선우', '니키'];
         const matrix = [
@@ -347,7 +399,6 @@
                 let x = e.clientX;
                 let y = e.clientY;
                 
-                // 모바일 터치 이벤트 지원 보완 (모바일에서는 e.clientX가 터치 좌표로 잘 작동하지만 위치 조정 로직 강화)
                 if (x + 150 > window.innerWidth) x = window.innerWidth - 170;
                 if (y + 250 > window.innerHeight) y = window.innerHeight - 270;
 
@@ -389,7 +440,6 @@
             element.style.color = textColor;
         }
 
-        // 초기화 버튼 동작
         document.getElementById('reset-btn').addEventListener('click', () => {
             document.querySelectorAll('td[data-type="cell"]').forEach(cell => {
                 cell.style.backgroundColor = '#ffffff';
@@ -397,17 +447,38 @@
             });
         });
 
+        // 캡처 및 모바일 친화적 팝업 띄우기
         document.getElementById('save-btn').addEventListener('click', () => {
+            // 스크롤이 내려가 있으면 캡처가 짤릴 수 있으므로 최상단으로 이동
+            window.scrollTo(0, 0); 
+            
             const captureArea = document.getElementById('capture-area');
+            
             html2canvas(captureArea, {
                 scale: 2, 
                 backgroundColor: "#ffffff"
             }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = '엔하이픈_취향표.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
+                const imgData = canvas.toDataURL('image/png');
+                
+                // 생성된 이미지를 모달 이미지 태그에 넣기
+                document.getElementById('result-image').src = imgData;
+                
+                // 모달창 띄우기
+                document.getElementById('result-modal').style.display = 'flex';
+                
+                // PC 저장 버튼 기능 묶어주기
+                document.getElementById('download-pc-btn').onclick = () => {
+                    const link = document.createElement('a');
+                    link.download = '엔하이픈_취향표.png';
+                    link.href = imgData;
+                    link.click();
+                };
             });
+        });
+
+        // 모달창 닫기 버튼
+        document.getElementById('close-result-btn').addEventListener('click', () => {
+            document.getElementById('result-modal').style.display = 'none';
         });
 
     </script>

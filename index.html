@@ -239,7 +239,7 @@
             margin-top: 20px;
             display: flex;
             width: 100%;
-            max-width: 150px; /* 버튼 하나만 남았으므로 너비 축소 */
+            max-width: 150px; 
         }
         
         #close-result-btn {
@@ -253,7 +253,6 @@
             }
             #capture-area {
                 margin-top: 50px; 
-                /* 모바일 화면에서는 양옆 여백을 5px로 좁게 보여줌 */
                 padding: 25px 5px; 
             }
             h1 {
@@ -456,11 +455,39 @@
             html2canvas(captureArea, {
                 scale: 2, 
                 backgroundColor: "#ffffff",
-                // 캡처할 때만 강제로 여백을 늘려주는 옵션!
+                // 캡처하는 순간에만 PC 크기로 강제 뻥튀기!
                 onclone: function(clonedDoc) {
                     if (isMobile) {
                         const clonedArea = clonedDoc.getElementById('capture-area');
-                        clonedArea.style.padding = '40px'; // 모바일 캡처 시 상하좌우 여백 40px로 넉넉하게 확장
+                        
+                        // 박스 가로 너비 및 여백 PC 버전으로 원상복구
+                        clonedArea.style.width = '800px'; 
+                        clonedArea.style.maxWidth = 'none';
+                        clonedArea.style.padding = '40px'; 
+                        
+                        // 글씨 크기 원상복구
+                        const clonedH1 = clonedArea.querySelector('h1');
+                        if(clonedH1) clonedH1.style.fontSize = '28px';
+                        
+                        const clonedSub = clonedArea.querySelector('.subtitle');
+                        if(clonedSub) clonedSub.style.fontSize = '14px';
+                        
+                        // 표 칸 높이 및 글자 크기 PC 버전으로 원상복구
+                        const clonedCells = clonedArea.querySelectorAll('th, td');
+                        clonedCells.forEach(cell => {
+                            cell.style.height = '60px';
+                            cell.style.fontSize = '15px';
+                        });
+                        
+                        // 범례 원상복구
+                        const clonedLegend = clonedArea.querySelector('.legend');
+                        if(clonedLegend) clonedLegend.style.fontSize = '13px';
+                        
+                        const clonedCircles = clonedArea.querySelectorAll('.color-circle');
+                        clonedCircles.forEach(circle => {
+                            circle.style.width = '14px';
+                            circle.style.height = '14px';
+                        });
                     }
                 }
             }).then(canvas => {

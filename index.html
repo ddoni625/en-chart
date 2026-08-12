@@ -239,7 +239,7 @@
             margin-top: 20px;
             display: flex;
             width: 100%;
-            max-width: 150px;
+            max-width: 150px; /* 버튼 하나만 남았으므로 너비 축소 */
         }
         
         #close-result-btn {
@@ -247,14 +247,13 @@
             width: 100%;
         }
 
-        /* 📱 모바일 반응형 디자인 설정 (비율 개선) */
         @media (max-width: 768px) {
             body {
                 padding: 10px; 
             }
             #capture-area {
                 margin-top: 50px; 
-                /* 양옆 여백을 줄여 표가 차지하는 가로 너비를 최대한 확보 */
+                /* 모바일 화면에서는 양옆 여백을 5px로 좁게 보여줌 */
                 padding: 25px 5px; 
             }
             h1 {
@@ -265,7 +264,6 @@
                 margin-bottom: 15px;
             }
             th, td {
-                /* 가로가 더 긴 '직사각형' 느낌을 주도록 세로 높이를 확 줄임 */
                 height: 35px; 
                 font-size: 10px; 
                 letter-spacing: -0.5px;
@@ -457,7 +455,14 @@
             
             html2canvas(captureArea, {
                 scale: 2, 
-                backgroundColor: "#ffffff"
+                backgroundColor: "#ffffff",
+                // 캡처할 때만 강제로 여백을 늘려주는 옵션!
+                onclone: function(clonedDoc) {
+                    if (isMobile) {
+                        const clonedArea = clonedDoc.getElementById('capture-area');
+                        clonedArea.style.padding = '40px'; // 모바일 캡처 시 상하좌우 여백 40px로 넉넉하게 확장
+                    }
+                }
             }).then(canvas => {
                 const imgData = canvas.toDataURL('image/png');
                 
